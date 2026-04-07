@@ -1,219 +1,360 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stopwatch App</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <title>Stopwatch — Task 02</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d0d0f;
-      --surface: #16161a;
-      --surface-2: #1e1e24;
-      --border: rgba(255,255,255,0.07);
-      --border-strong: rgba(255,255,255,0.15);
-      --accent: #b8ff57;
-      --accent-dim: rgba(184,255,87,0.12);
-      --accent-text: #0d0d0f;
-      --text-primary: #f0f0ee;
-      --text-secondary: #888887;
-      --text-muted: #444443;
-      --danger: #ff5f57;
-      --danger-dim: rgba(255,95,87,0.12);
-      --warning: #ffbd2e;
-      --warning-dim: rgba(255,189,46,0.12);
-      --mono: 'Syne Mono', monospace;
-      --sans: 'Syne', sans-serif;
-      --radius: 16px;
-      --radius-sm: 8px;
-      --radius-pill: 999px;
+      --bg-from: #0a0a1a;
+      --bg-to: #0d0d2b;
+      --glass-bg: rgba(255,255,255,0.05);
+      --glass-border: rgba(255,255,255,0.1);
+      --glass-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.55);
+      --text-muted: rgba(255,255,255,0.25);
+      --accent: #7c6ff7;
+      --accent-2: #a78bfa;
+      --accent-glow: rgba(124,111,247,0.35);
+      --green: #34d399;
+      --green-glow: rgba(52,211,153,0.3);
+      --red: #f87171;
+      --red-glow: rgba(248,113,113,0.3);
+      --yellow: #fbbf24;
+      --btn-glass: rgba(255,255,255,0.08);
+      --btn-hover: rgba(255,255,255,0.14);
+      --lap-bg: rgba(255,255,255,0.04);
     }
 
+    [data-theme="light"] {
+      --bg-from: #e8eaf6;
+      --bg-to: #c5cae9;
+      --glass-bg: rgba(255,255,255,0.55);
+      --glass-border: rgba(255,255,255,0.8);
+      --glass-shadow: 0 8px 32px rgba(100,100,180,0.18);
+      --text-primary: #1a1a2e;
+      --text-secondary: rgba(30,30,60,0.6);
+      --text-muted: rgba(30,30,60,0.35);
+      --accent: #5c6bc0;
+      --accent-2: #7c4dff;
+      --accent-glow: rgba(92,107,192,0.25);
+      --green: #059669;
+      --red: #dc2626;
+      --yellow: #d97706;
+      --btn-glass: rgba(255,255,255,0.5);
+      --btn-hover: rgba(255,255,255,0.75);
+      --lap-bg: rgba(255,255,255,0.35);
+    }
+
+    html, body { min-height: 100vh; font-family: 'Poppins', sans-serif; }
+
     body {
-      background: var(--bg);
-      color: var(--text-primary);
-      font-family: var(--sans);
-      min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      padding: 2rem 1rem 4rem;
+      justify-content: center;
+      padding: 1.5rem 1rem 3rem;
+      transition: background 0.5s;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    header {
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 2.5rem;
+    .blob {
+      position: fixed; border-radius: 50%; filter: blur(80px);
+      opacity: 0.18; pointer-events: none; z-index: 0; transition: opacity 0.5s;
     }
-    .logo { font-size: 13px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
-    .logo span { color: var(--accent); }
-    .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); color: var(--text-secondary); }
+    .blob-1 { width:500px; height:500px; background:#7c6ff7; top:-150px; left:-150px; }
+    .blob-2 { width:400px; height:400px; background:#a78bfa; bottom:-100px; right:-100px; }
+    .blob-3 { width:300px; height:300px; background:#34d399; top:40%; left:60%; }
+    [data-theme="light"] .blob { opacity: 0.1; }
 
-    .card {
+    .theme-btn {
+      position: fixed; top:1.25rem; right:1.25rem; z-index:100;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 50px; padding: 8px 16px; cursor: pointer;
+      font-size: 13px; font-family: 'Poppins', sans-serif; font-weight: 500;
+      color: var(--text-secondary); backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s; display: flex; align-items: center; gap: 6px;
+    }
+    .theme-btn:hover { color: var(--text-primary); background: var(--btn-hover); }
+
+    .wrapper {
+      position: relative; z-index: 1; width: 100%; max-width: 480px;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+
+    .header { text-align: center; margin-bottom: 0.25rem; }
+    .header p {
+      font-size: 13px; font-weight: 500; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .header p span { color: var(--accent-2); }
+
+    .glass-card {
       width: 100%;
-      max-width: 480px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
       padding: 2.5rem 2rem 2rem;
-      margin-bottom: 1rem;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--glass-shadow);
+      position: relative;
+      overflow: hidden;
     }
 
-    .clock-area { text-align: center; margin-bottom: 2rem; }
-    .ring-wrap { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 1.25rem; }
-    .ring-svg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; opacity: 0.2; pointer-events: none; transition: opacity 0.4s; }
-    .ring-svg.active { opacity: 1; }
-    .ring-track { fill: none; stroke: var(--border-strong); stroke-width: 2; }
-    .ring-prog  { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 502; stroke-dashoffset: 502; transform-origin: center; transform: rotate(-90deg); transition: stroke-dashoffset 0.1s linear; }
+    .timer-glow {
+      position: absolute; width:280px; height:280px; border-radius:50%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      top:50%; left:50%; transform:translate(-50%,-60%);
+      pointer-events:none; opacity:0; transition:opacity 0.6s;
+    }
+    .timer-glow.active { opacity:1; animation: glowPulse 2s ease-in-out infinite; }
+    @keyframes glowPulse {
+      0%,100% { transform:translate(-50%,-60%) scale(1); opacity:1; }
+      50%      { transform:translate(-50%,-60%) scale(1.12); opacity:0.6; }
+    }
 
-    #time-main { font-family: var(--mono); font-size: clamp(48px, 12vw, 72px); letter-spacing: -1px; color: var(--text-primary); line-height: 1; position: relative; z-index: 1; }
-    #time-ms   { font-family: var(--mono); font-size: clamp(22px, 5vw, 32px); color: var(--accent); }
+    .time-wrap { text-align:center; position:relative; z-index:1; margin-bottom:2rem; }
 
-    .status-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 0.75rem; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); transition: background 0.3s; }
-    .dot.running { background: var(--accent); animation: pulse 1s ease infinite; }
-    .dot.paused  { background: var(--warning); }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-    .status-text { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-secondary); transition: color 0.3s; }
-    .status-text.running { color: var(--accent); }
-    .status-text.paused  { color: var(--warning); }
+    #time-display {
+      font-size: clamp(48px, 13vw, 76px);
+      font-weight: 700;
+      letter-spacing: -2px;
+      color: var(--text-primary);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      transition: text-shadow 0.4s;
+    }
+    #time-display.running {
+      text-shadow: 0 0 40px var(--accent-glow), 0 0 80px var(--accent-glow);
+    }
+    .ms-part { font-size: clamp(26px, 6vw, 38px); font-weight: 300; color: var(--accent-2); }
 
-    .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .btn { padding: 14px 0; font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: 0.04em; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text-primary); cursor: pointer; transition: background 0.15s, transform 0.1s; }
-    .btn:hover:not(:disabled) { background: rgba(255,255,255,0.06); }
-    .btn:active:not(:disabled) { transform: scale(0.96); }
-    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .btn-start { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .btn-start:hover:not(:disabled) { background: #cbff7a; }
-    .btn-start.pause-mode { background: var(--warning-dim); color: var(--warning); border-color: var(--warning); }
-    .btn-reset { background: var(--danger-dim); color: var(--danger); border-color: var(--danger); }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 1rem; padding: 5px 14px; border-radius: 50px;
+      border: 1px solid var(--glass-border); background: var(--btn-glass);
+      font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-secondary); transition: all 0.3s;
+    }
+    .sdot {
+      width:6px; height:6px; border-radius:50%; background:var(--text-muted); transition:background 0.3s;
+    }
+    .sdot.running { background:var(--green); box-shadow:0 0 8px var(--green-glow); animation:dp 1s ease infinite; }
+    .sdot.paused  { background:var(--yellow); }
+    @keyframes dp { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem; }
-    .stat-chip { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
-    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-    .stat-val { font-family: var(--mono); font-size: 18px; color: var(--text-primary); }
-    .stat-val.green { color: var(--accent); }
-    .stat-val.red   { color: var(--danger); }
+    .btn-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; position:relative; z-index:1; }
 
-    .laps-card { width: 100%; max-width: 480px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .laps-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); }
-    .laps-title { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-secondary); }
-    #lap-count-badge { font-size: 11px; padding: 3px 10px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); font-weight: 600; }
-    .laps-list { max-height: 280px; overflow-y: auto; }
-    .laps-list::-webkit-scrollbar { width: 4px; }
-    .laps-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+    .btn {
+      padding: 14px 0;
+      font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+      border-radius: 14px; border: 1px solid var(--glass-border);
+      background: var(--btn-glass); color: var(--text-primary); cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .btn:hover:not(:disabled) { transform:translateY(-2px) scale(1.03); background:var(--btn-hover); }
+    .btn:active:not(:disabled) { transform:scale(0.95); }
+    .btn:disabled { opacity:0.3; cursor:not-allowed; }
 
-    .lap-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--border); animation: slideIn 0.2s ease; }
-    .lap-row:last-child { border-bottom: none; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-    .lap-num   { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); min-width: 50px; }
-    .lap-delta { font-family: var(--mono); font-size: 12px; color: var(--text-muted); min-width: 80px; text-align: center; }
-    .lap-time  { font-family: var(--mono); font-size: 15px; color: var(--text-primary); text-align: right; min-width: 90px; }
-    .lap-row.best  .lap-time { color: var(--accent); }
-    .lap-row.worst .lap-time { color: var(--danger); }
-    .lap-row.best  .lap-num::after { content: ' ↑'; color: var(--accent); }
-    .lap-row.worst .lap-num::after { content: ' ↓'; color: var(--danger); }
-    .laps-empty { padding: 2.5rem 1rem; text-align: center; font-size: 13px; color: var(--text-muted); }
+    .btn-start {
+      background: linear-gradient(135deg,#7c6ff7,#a78bfa);
+      border-color:transparent; box-shadow:0 4px 20px var(--accent-glow); color:#fff;
+    }
+    .btn-start:hover:not(:disabled) { box-shadow:0 6px 28px var(--accent-glow),0 0 0 1px rgba(167,139,250,0.5); background:linear-gradient(135deg,#8b7ff8,#b89afb); }
+    .btn-start.paused-mode {
+      background: linear-gradient(135deg,#d97706,#fbbf24);
+      box-shadow: 0 4px 20px rgba(251,191,36,0.3); border-color:transparent;
+    }
+    .btn-lap {
+      background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(52,211,153,0.08));
+      border-color:rgba(52,211,153,0.3); color:var(--green);
+    }
+    .btn-lap:hover:not(:disabled) { box-shadow:0 4px 20px var(--green-glow); }
+    .btn-reset {
+      background:linear-gradient(135deg,rgba(248,113,113,0.15),rgba(248,113,113,0.08));
+      border-color:rgba(248,113,113,0.3); color:var(--red);
+    }
+    .btn-reset:hover:not(:disabled) { box-shadow:0 4px 20px var(--red-glow); }
 
-    footer { margin-top: 3rem; font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; text-align: center; }
-    footer span { color: var(--text-secondary); }
+    .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:1rem; position:relative; z-index:1; }
+    .stat { background:var(--lap-bg); border:1px solid var(--glass-border); border-radius:14px; padding:12px 16px; }
+    .stat-label { font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px; }
+    .stat-val   { font-family:'Inter',sans-serif; font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--text-primary); }
+    .stat-val.green { color:var(--green); }
+    .stat-val.red   { color:var(--red); }
+
+    .laps-card {
+      width:100%; background:var(--glass-bg); border:1px solid var(--glass-border);
+      border-radius:20px; overflow:hidden; backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px); box-shadow:var(--glass-shadow);
+    }
+    .laps-head {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 20px; border-bottom:1px solid var(--glass-border);
+    }
+    .laps-title { font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); }
+    .laps-badge {
+      font-size:11px; font-weight:600; padding:3px 10px; border-radius:50px;
+      background:var(--btn-glass); border:1px solid var(--glass-border); color:var(--text-secondary);
+    }
+    .laps-cols {
+      display:grid; grid-template-columns:55px 1fr 1fr;
+      padding:7px 20px; border-bottom:1px solid var(--glass-border);
+    }
+    .col-h { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); }
+    .col-h:nth-child(2) { text-align:center; }
+    .col-h:nth-child(3) { text-align:right; }
+
+    .laps-body { max-height:260px; overflow-y:auto; }
+    .laps-body::-webkit-scrollbar { width:3px; }
+    .laps-body::-webkit-scrollbar-thumb { background:var(--glass-border); border-radius:3px; }
+
+    .lap-row {
+      display:grid; grid-template-columns:55px 1fr 1fr;
+      align-items:center; padding:11px 20px;
+      border-bottom:1px solid var(--glass-border);
+      font-family:'Inter',sans-serif; font-size:14px;
+      font-variant-numeric:tabular-nums; color:var(--text-primary);
+      animation:lapIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .lap-row:last-child { border-bottom:none; }
+    @keyframes lapIn { from{opacity:0;transform:translateY(-8px) scale(0.97)} to{opacity:1;transform:none} }
+    .lap-n { font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; }
+    .lap-s { font-size:13px; color:var(--text-secondary); text-align:center; }
+    .lap-t { text-align:right; font-weight:600; }
+    .lap-row.best  .lap-t { color:var(--green); }
+    .lap-row.worst .lap-t { color:var(--red); }
+    .lap-row.best  .lap-n::after { content:' ↑'; color:var(--green); }
+    .lap-row.worst .lap-n::after { content:' ↓'; color:var(--red); }
+
+    .laps-empty { padding:2.5rem; text-align:center; font-size:13px; color:var(--text-muted); }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 1.5rem;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+    footer strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    @media (max-width:420px) {
+      .glass-card { padding:2rem 1.25rem 1.5rem; border-radius:20px; }
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">Stop<span>watch</span></div>
-    <div class="badge">Task 02</div>
-  </header>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-  <div class="card">
-    <div class="clock-area">
-      <div class="ring-wrap">
-        <svg class="ring-svg" id="ring-svg" viewBox="0 0 170 170">
-          <circle class="ring-track" cx="85" cy="85" r="80"/>
-          <circle class="ring-prog"  cx="85" cy="85" r="80" id="ring-prog"/>
-        </svg>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="theme-icon">☀️</span>
+    <span id="theme-label">Light</span>
+  </button>
+
+  <div class="wrapper">
+    <div class="header">
+      <p>Stop<span>watch</span> &nbsp;·&nbsp; <span>Task 02</span></p>
+    </div>
+
+    <div class="glass-card">
+      <div class="timer-glow" id="timer-glow"></div>
+
+      <div class="time-wrap">
+        <div id="time-display">00:00:00<span class="ms-part" id="time-ms">.00</span></div>
         <div>
-          <div id="time-main">00:00<span id="time-ms">.00</span></div>
+          <span class="status-badge">
+            <span class="sdot" id="sdot"></span>
+            <span id="stext">Ready</span>
+          </span>
         </div>
       </div>
-      <div class="status-row">
-        <div class="dot" id="status-dot"></div>
-        <span class="status-text" id="status-text">Ready</span>
+
+      <div class="btn-grid">
+        <button class="btn btn-start" id="btn-start" onclick="toggleStart()">Start</button>
+        <button class="btn btn-lap"   id="btn-lap"   onclick="recordLap()" disabled>Lap</button>
+        <button class="btn btn-reset" id="btn-reset" onclick="resetAll()"  disabled>Reset</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-label">Best lap</div>
+          <div class="stat-val green" id="stat-best">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Worst lap</div>
+          <div class="stat-val red" id="stat-worst">—</div>
+        </div>
       </div>
     </div>
 
-    <div class="btn-row">
-      <button class="btn btn-start" id="btn-start" onclick="toggleStart()">Start</button>
-      <button class="btn" id="btn-lap" onclick="recordLap()" disabled>Lap</button>
-      <button class="btn btn-reset" id="btn-reset" onclick="resetAll()" disabled>Reset</button>
+    <div class="laps-card">
+      <div class="laps-head">
+        <span class="laps-title">Lap times</span>
+        <span class="laps-badge" id="laps-badge">0 laps</span>
+      </div>
+      <div class="laps-cols">
+        <span class="col-h">Lap</span>
+        <span class="col-h">Split</span>
+        <span class="col-h">Total</span>
+      </div>
+      <div class="laps-body" id="laps-body">
+        <div class="laps-empty">Hit Start, then Lap to record splits.</div>
+      </div>
     </div>
 
-    <div class="stats-row">
-      <div class="stat-chip">
-        <div class="stat-label">Best lap</div>
-        <div class="stat-val green" id="stat-best">—</div>
-      </div>
-      <div class="stat-chip">
-        <div class="stat-label">Worst lap</div>
-        <div class="stat-val red" id="stat-worst">—</div>
-      </div>
-    </div>
+    <footer>Designed &amp; Built by <strong>Chinmay Nair</strong> &nbsp;·&nbsp; Prodigy Infotech Internship &nbsp;·&nbsp; PRODIGY_WD_02</footer>
   </div>
-
-  <div class="laps-card">
-    <div class="laps-header">
-      <span class="laps-title">Lap times</span>
-      <span id="lap-count-badge">0 laps</span>
-    </div>
-    <div class="laps-list" id="laps-list">
-      <div class="laps-empty">Start the stopwatch to begin recording laps.</div>
-    </div>
-  </div>
-
-  <footer>Prodigy Infotech Internship &nbsp;·&nbsp; <span>Task 02</span></footer>
 
   <script>
     let elapsed = 0, startedAt = 0, running = false, rafId = null;
     let laps = [], lapAnchor = 0;
-    const CIRCUM = 2 * Math.PI * 80;
 
-    const elMain    = document.getElementById('time-main');
+    const elDisplay = document.getElementById('time-display');
     const elMs      = document.getElementById('time-ms');
-    const elDot     = document.getElementById('status-dot');
-    const elStatus  = document.getElementById('status-text');
+    const sdot      = document.getElementById('sdot');
+    const stext     = document.getElementById('stext');
     const btnStart  = document.getElementById('btn-start');
     const btnLap    = document.getElementById('btn-lap');
     const btnReset  = document.getElementById('btn-reset');
-    const lapsList  = document.getElementById('laps-list');
-    const lapBadge  = document.getElementById('lap-count-badge');
+    const lapsBody  = document.getElementById('laps-body');
+    const lapsBadge = document.getElementById('laps-badge');
     const statBest  = document.getElementById('stat-best');
     const statWorst = document.getElementById('stat-worst');
-    const ringProg  = document.getElementById('ring-prog');
-    const ringSvg   = document.getElementById('ring-svg');
+    const glow      = document.getElementById('timer-glow');
 
-    function pad(n)      { return String(Math.floor(n)).padStart(2, '0'); }
-    function fmt(ms)     { return pad(ms / 60000) + ':' + pad((ms / 1000) % 60) + '.' + pad((ms % 1000) / 10); }
-    function now()       { return elapsed + (running ? Date.now() - startedAt : 0); }
+    function pad(n) { return String(Math.floor(n)).padStart(2,'0'); }
+    function fmt(ms) {
+      return pad(ms/3600000)+':'+pad((ms%3600000)/60000)+':'+pad((ms%60000)/1000)+'.'+pad((ms%1000)/10);
+    }
+    function now() { return elapsed + (running ? Date.now() - startedAt : 0); }
 
     function tick() {
       const t = now();
-      elMain.childNodes[0].textContent = pad(t / 60000) + ':' + pad((t / 1000) % 60);
-      elMs.textContent = '.' + pad((t % 1000) / 10);
-      ringProg.style.strokeDashoffset = CIRCUM - ((t / 1000) % 60 / 60) * CIRCUM;
+      elDisplay.childNodes[0].textContent = pad(t/3600000)+':'+pad((t%3600000)/60000)+':'+pad((t%60000)/1000);
+      elMs.textContent = '.'+pad((t%1000)/10);
       rafId = requestAnimationFrame(tick);
     }
 
     function setStatus(cls, text) {
-      elDot.className = 'dot ' + cls;
-      elStatus.className = 'status-text ' + cls;
-      elStatus.textContent = text;
+      sdot.className = 'sdot ' + cls;
+      stext.textContent = text;
     }
 
     function toggleStart() {
@@ -222,59 +363,69 @@
         running = true;
         rafId = requestAnimationFrame(tick);
         btnStart.textContent = 'Pause';
-        btnStart.classList.add('pause-mode');
+        btnStart.classList.add('paused-mode');
         btnLap.disabled = btnReset.disabled = false;
-        ringSvg.classList.add('active');
+        elDisplay.classList.add('running');
+        glow.classList.add('active');
         setStatus('running', 'Running');
       } else {
         elapsed += Date.now() - startedAt;
         running = false;
         cancelAnimationFrame(rafId);
         btnStart.textContent = 'Resume';
-        btnStart.classList.remove('pause-mode');
+        btnStart.classList.remove('paused-mode');
+        elDisplay.classList.remove('running');
+        glow.classList.remove('active');
         setStatus('paused', 'Paused');
       }
     }
 
     function recordLap() {
-      if (!running) return;
       const total = now();
-      laps.push(total - lapAnchor);
+      const split = total - lapAnchor;
       lapAnchor = total;
+      laps.push({ split, total });
       renderLaps();
     }
 
     function resetAll() {
       running = false; elapsed = 0; lapAnchor = 0; laps = [];
       cancelAnimationFrame(rafId);
-      elMain.childNodes[0].textContent = '00:00';
+      elDisplay.childNodes[0].textContent = '00:00:00';
       elMs.textContent = '.00';
-      ringProg.style.strokeDashoffset = CIRCUM;
-      ringSvg.classList.remove('active');
+      elDisplay.classList.remove('running');
+      glow.classList.remove('active');
       btnStart.textContent = 'Start';
-      btnStart.classList.remove('pause-mode');
+      btnStart.classList.remove('paused-mode');
       btnLap.disabled = btnReset.disabled = true;
       setStatus('', 'Ready');
       statBest.textContent = statWorst.textContent = '—';
-      lapBadge.textContent = '0 laps';
-      lapsList.innerHTML = '<div class="laps-empty">Start the stopwatch to begin recording laps.</div>';
+      lapsBadge.textContent = '0 laps';
+      lapsBody.innerHTML = '<div class="laps-empty">Hit Start, then Lap to record splits.</div>';
     }
 
     function renderLaps() {
-      const minT = Math.min(...laps), maxT = Math.max(...laps);
-      statBest.textContent  = fmt(minT);
-      statWorst.textContent = fmt(maxT);
-      lapBadge.textContent  = laps.length + ' lap' + (laps.length !== 1 ? 's' : '');
-      let cum = 0;
-      const rows = laps.map((t, i) => { cum += t; return { i, t, cum }; });
-      lapsList.innerHTML = rows.slice().reverse().map(({ i, t, cum }) => {
-        const cls = laps.length > 1 ? (t === minT ? ' best' : t === maxT ? ' worst' : '') : '';
+      const splits = laps.map(l => l.split);
+      const minS = Math.min(...splits), maxS = Math.max(...splits);
+      statBest.textContent  = fmt(minS);
+      statWorst.textContent = fmt(maxS);
+      lapsBadge.textContent = laps.length + ' lap' + (laps.length !== 1 ? 's' : '');
+      lapsBody.innerHTML = laps.slice().reverse().map((l, ri) => {
+        const i = laps.length - 1 - ri;
+        const cls = laps.length > 1 ? (l.split === minS ? ' best' : l.split === maxS ? ' worst' : '') : '';
         return `<div class="lap-row${cls}">
-          <span class="lap-num">Lap ${i + 1}</span>
-          <span class="lap-delta">${fmt(t)}</span>
-          <span class="lap-time">${fmt(cum)}</span>
+          <span class="lap-n">Lap ${i+1}</span>
+          <span class="lap-s">${fmt(l.split)}</span>
+          <span class="lap-t">${fmt(l.total)}</span>
         </div>`;
       }).join('');
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.getElementById('theme-icon').textContent  = isDark ? '🌙' : '☀️';
+      document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
     }
   </script>
 </body>
